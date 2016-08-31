@@ -1,15 +1,16 @@
-# Sidekiq::Globalid
+[![Build Status](https://travis-ci.org/bolshakov/sidekiq-global_id.svg?branch=master)](https://travis-ci.org/bolshakov/sidekiq-global_id)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/sidekiq/globalid`. To experiment with that code, run `bin/console` for an interactive prompt.
+# Sidekiq::GlobalId
 
-TODO: Delete this and the text above, and describe your gem
+This gem provides Sidekiq middleware to serialize ActiveRecord objects with GlobalId. Actually it uses the same mechanism as
+ ActiveJob uses internally to serialize job arguments, and works not only with ActiveRecord objects, but also with Hashes.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sidekiq-globalid'
+gem 'sidekiq-global_id'
 ```
 
 And then execute:
@@ -18,12 +19,44 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install sidekiq-globalid
+    $ gem install sidekiq-global_id
 
 ## Usage
 
-TODO: Write usage instructions here
+Configure Sidekiq to use server and client middleware:
 
+
+```ruby
+Sidekiq.server_middleware do |chain|
+  chain.prepend Sidekiq::GlobalId::ServerMiddleware
+end
+
+Sidekiq.client_middleware do |chain|
+  chain.prepend Sidekiq::GlobalId::ClientMiddleware
+end
+```
+
+Now you can pass ActiveRecord arguments into Sidekiq worker:
+
+```ruby
+user = User.create!(params)
+
+WelcomeEmailSender.perform_async(user)
+```
+
+## Testing 
+
+If you're using [rspec-sidekiq](https://github.com/philostler/rspec-sidekiq) gem, `require 'sidekiq/global_id/rspec'` to deserialize global ids:
+ 
+```ruby
+require 'sidekiq/global_id/rspec'
+
+it 'sends welcome email to user' do 
+  WelcomeEmailSender.perform_async(user)
+  expect(WelcomeEmailSender).to have_enqueued_job(user)
+end
+```
+   
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -32,7 +65,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/sidekiq-globalid.
+Bug reports and pull requests are welcome on GitHub at https://github.com/bolshakov/sidekiq-global_id.
 
 
 ## License

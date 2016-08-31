@@ -1,2 +1,7 @@
 inherit_gem:
-  spbtv_code_style: .rubocop.yml
+  spbtv_code_style: .strict_rubocop.yml
+
+
+Style/Documentation:
+  Exclude:
+    - spec/**/*.rb
