@@ -1,7 +1,7 @@
 # rubocop:disable Style/GlobalVars
 RSpec.describe Sidekiq::GlobalId::ServerMiddleware do
   let(:book) { Book.create! }
-  class CustomWorker
+  class IntegrationWorker
     $args = []
     include Sidekiq::Worker
 
@@ -19,7 +19,7 @@ RSpec.describe Sidekiq::GlobalId::ServerMiddleware do
   it 'serializes and deserializes attributes' do
     expect($args).to eq([])
 
-    CustomWorker.perform_async(book)
+    IntegrationWorker.perform_async(book)
 
     expect($args).to eq([book])
   end

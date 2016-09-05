@@ -15,4 +15,10 @@ class RSpec::Sidekiq::Matchers::HaveEnqueuedJob # rubocop:disable Style/ClassAnd
       ActiveJob::Arguments.deserialize(args)
     end
   end
+
+  # No need to normalize symbol keys, since we're able to
+  # handle them properly.
+  def normalize_arguments(args)
+    args
+  end
 end
