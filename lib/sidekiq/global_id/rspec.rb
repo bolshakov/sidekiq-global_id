@@ -1,3 +1,4 @@
+require 'sidekiq/global_id'
 require 'rspec/sidekiq/matchers/have_enqueued_job'
 
 Sidekiq::Testing.server_middleware do |c|
