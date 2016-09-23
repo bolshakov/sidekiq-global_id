@@ -44,19 +44,29 @@ user = User.create!(params)
 WelcomeEmailSender.perform_async(user)
 ```
 
-## Testing 
+## Testing
 
 If you're using [rspec-sidekiq](https://github.com/philostler/rspec-sidekiq) gem, `require 'sidekiq/global_id/rspec'` to deserialize global ids:
- 
+
 ```ruby
 require 'sidekiq/global_id/rspec'
 
-it 'sends welcome email to user' do 
+it 'sends welcome email to user' do
   WelcomeEmailSender.perform_async(user)
   expect(WelcomeEmailSender).to have_enqueued_job(user)
 end
 ```
-   
+
+In the event you are testing Sidekiq workers _inline_ using Sidekiq's [suggested approach](https://github.com/mperham/sidekiq/wiki/Testing#setup). To allow test inline workers to deserialize the GlobalId `Sidekiq::GlobalId::ServerMiddleware` must also be included in the [Sidekiq Test Harness](https://github.com/mperham/sidekiq/wiki/Testing#testing-server-middleware).
+
+```ruby
+require "sidekiq/testing"
+Sidekiq::Testing.inline!
+Sidekiq::Testing.server_middleware do |chain|
+  chain.prepend Sidekiq::GlobalId::ServerMiddleware
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
