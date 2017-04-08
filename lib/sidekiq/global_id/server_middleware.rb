@@ -8,8 +8,13 @@ module Sidekiq
       # @param _queue [String]
       # @return [<any>] job args
       def call(_worker, job, _queue)
-        job['args'] = ActiveJob::Arguments.deserialize(job['args'])
+        _args = job['args']
+        unless _worker.class.name.start_with? 'ActiveJob::'
+          job['args'] = ActiveJob::Arguments.deserialize(_args)
+        end
         yield
+      ensure
+        job['args'] = _args
       end
     end
   end
